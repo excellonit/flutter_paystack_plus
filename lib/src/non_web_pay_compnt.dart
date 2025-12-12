@@ -1,15 +1,23 @@
+<<<<<<< HEAD
 //flutter_paystack_plus/lib/src/non_web_pay_compnt.dart
 import 'dart:async';
+=======
+// ignore_for_file: prefer_typing_uninitialized_variables
+
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:webview_flutter/webview_flutter.dart';
 
+<<<<<<< HEAD
 // Custom glassmorphic glass widgets
 import 'glass/decorations.dart';
 import 'glass/glass_widgets.dart';
 
+=======
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
 class PaystackPayNow extends StatefulWidget {
   final String secretKey;
   final String reference;
@@ -18,6 +26,7 @@ class PaystackPayNow extends StatefulWidget {
   final String email;
   final String amount;
   final String? plan;
+<<<<<<< HEAD
   final Map<String, dynamic>? metadata;
   final List<String>? paymentChannel;
   final VoidCallback transactionCompleted;
@@ -26,6 +35,15 @@ class PaystackPayNow extends StatefulWidget {
 
   const PaystackPayNow({
     super.key,
+=======
+  final metadata;
+  final paymentChannel;
+  final Function() transactionCompleted;
+  final Function() transactionNotCompleted;
+
+  const PaystackPayNow({
+    Key? key,
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
     required this.secretKey,
     required this.email,
     required this.reference,
@@ -37,13 +55,18 @@ class PaystackPayNow extends StatefulWidget {
     this.metadata,
     this.plan,
     this.paymentChannel,
+<<<<<<< HEAD
     this.tintColor,
   });
+=======
+  }) : super(key: key);
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
 
   @override
   State<PaystackPayNow> createState() => _PaystackPayNowState();
 }
 
+<<<<<<< HEAD
 class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProviderStateMixin {
   late Future<PaystackRequestResponse> payment;
   WebViewController? _controller;
@@ -52,11 +75,17 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
   String? _errorMessage;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+=======
+class _PaystackPayNowState extends State<PaystackPayNow> {
+  late Future<PaystackRequestResponse> payment;
+  WebViewController? _controller; // keep it persistent
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
 
   @override
   void initState() {
     super.initState();
     payment = _makePaymentRequest();
+<<<<<<< HEAD
 
     // Pulse animation for loading states
     _pulseController = AnimationController(
@@ -147,12 +176,57 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
       return body['message']?.toString() ?? 'Unknown error';
     } catch (_) {
       return 'HTTP ${response.statusCode}';
+=======
+  }
+   /// Makes HTTP Request to Paystack for access to make payment.
+  Future<PaystackRequestResponse> _makePaymentRequest() async {
+    http.Response? response;
+    try {
+      /// Sending Data to paystack.
+      response = await http.post(
+        /// Url to send data to
+        Uri.parse('https://api.paystack.co/transaction/initialize'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${widget.secretKey}',
+        },
+
+        /// Data to send to the URL.
+        body: jsonEncode({
+          "email": widget.email,
+          "amount": widget.amount,
+          "reference": widget.reference,
+          "currency": widget.currency,
+          "plan": widget.plan,
+          "metadata": widget.metadata,
+          "callback_url": widget.callbackUrl,
+          "channels": widget.paymentChannel
+        }),
+      );
+    } on Exception catch (e) {
+      /// In the event of an exception, take the user back and show a SnackBar error.
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        var snackBar =
+            SnackBar(content: Text("Fatal error occurred, ${e.toString()}"));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
+
+    if (response!.statusCode == 200) {
+      return PaystackRequestResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception(
+          "Response Code: ${response.statusCode}, Response Body${response.body}");
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
     }
   }
 
   WebViewController _buildController(String authUrl) {
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+<<<<<<< HEAD
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (String url) {
@@ -189,6 +263,22 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
               });
             }
           },
+=======
+      // remove the forced UA (let WebView pick a mobile UA)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (request) async {
+            final url = request.url;
+
+            if (url.contains('cancelurl.com') ||
+                url.contains('paystack.co/close') ||
+                url.contains(widget.callbackUrl)) {
+              await _checkTransactionStatus(widget.reference);
+              if (context.mounted) Navigator.of(context).pop();
+            }
+            return NavigationDecision.navigate;
+          },
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
         ),
       )
       ..loadRequest(Uri.parse(authUrl));
@@ -196,15 +286,26 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
     return controller;
   }
 
+<<<<<<< HEAD
   /// Enterprise-grade transaction verification
   Future<void> _verifyAndCloseTransaction(String reference) async {
     try {
       final response = await http.get(
         Uri.parse('https://api.paystack.co/transaction/verify/$reference'),
+=======
+  /// Checks for transaction status of current transaction before view closes.
+  Future _checkTransactionStatus(String ref) async {
+    http.Response? response;
+    try {
+      /// Getting data, passing [ref] as a value to the URL that is being requested.
+      response = await http.get(
+        Uri.parse('https://api.paystack.co/transaction/verify/$ref'),
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.secretKey}',
         },
+<<<<<<< HEAD
       ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
@@ -233,12 +334,39 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
       return '${amountInUnits.toStringAsFixed(2)} ${widget.currency.toUpperCase()}';
     } catch (_) {
       return '${widget.amount} ${widget.currency.toUpperCase()}';
+=======
+      );
+    } on Exception catch (_) {
+      /// In the event of an exception, take the user back and show a SnackBar error.
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        var snackBar = const SnackBar(
+            content: Text("Fatal error occurred, Please check your internet"));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
+    if (response!.statusCode == 200) {
+      var decodedRespBody = jsonDecode(response.body);
+      if (decodedRespBody["data"]["gateway_response"] == "Approved" ||
+          decodedRespBody["data"]["gateway_response"] == "Successful") {
+        widget.transactionCompleted();
+      } else {
+        widget.transactionNotCompleted();
+      }
+    } else {
+      /// Anything else means there is an issue
+      widget.transactionNotCompleted();
+      throw Exception(
+          "Response Code: ${response.statusCode}, Response Body${response.body}");
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
@@ -651,12 +779,39 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
                   ],
                 ),
               ),
+=======
+      body: SafeArea(
+        child: FutureBuilder<PaystackRequestResponse>(
+          future:payment,
+          builder: (context, AsyncSnapshot<PaystackRequestResponse> snapshot) {
+            /// Show screen if snapshot has data and status is true.
+            if (snapshot.hasData && snapshot.data!.status == true) {
+               _controller ??= _buildController(snapshot.data!.authUrl);
+
+              return WebViewWidget(
+                key: const ValueKey("paystack-webview"), // stable key
+                controller: _controller!,
+              );
+            }
+
+            if (snapshot.hasError) {
+              return Material(
+                child: Center(
+                  child: Text('${snapshot.error}'),
+                ),
+              );
+            }
+
+            return const Center(
+              child: CircularProgressIndicator(),
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
             );
           },
         ),
       ),
     );
   }
+<<<<<<< HEAD
 
   Widget _buildPaymentInfoOverlay(PaystackRequestResponse response) {
     return Positioned(
@@ -860,11 +1015,16 @@ class _PaystackPayNowState extends State<PaystackPayNow> with SingleTickerProvid
 }
 
 /// PayStack API Response Model
+=======
+}
+
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
 class PaystackRequestResponse {
   final bool status;
   final String authUrl;
   final String reference;
 
+<<<<<<< HEAD
   const PaystackRequestResponse({
     required this.authUrl,
     required this.status,
@@ -892,3 +1052,16 @@ class HttpException implements Exception {
   @override
   String toString() => 'HTTP $statusCode: $message';
 }
+=======
+  const PaystackRequestResponse(
+      {required this.authUrl, required this.status, required this.reference});
+
+  factory PaystackRequestResponse.fromJson(Map<String, dynamic> json) {
+    return PaystackRequestResponse(
+      status: json['status'],
+      authUrl: json['data']["authorization_url"],
+      reference: json['data']["reference"],
+    );
+  }
+}
+>>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3

@@ -1,6 +1,6 @@
 import 'package:flutter_paystack_plus/src/stub.dart'
     if (dart.library.js) 'package:flutter_paystack_plus/src/paystack_interop.dart'
-    if (dart.library.io) 'package:flutter_paystack_plus/src/for_non_web.dart';
+    if (dart.library.io) 'package:flutter_paystack_plus/src/pay_for_mobile.dart';
 import 'package:flutter/material.dart';
 
 abstract class MakePlatformSpecificPayment {

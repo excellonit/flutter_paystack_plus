@@ -2,7 +2,7 @@ name: flutter_paystack_plus
 description: Integrate Paystack for Mobile and Web with support for split payment and subscription features.
 version: 2.3.0
 <<<<<<< HEAD
-homepage: https://github.com/excellonit/flutter_paystack_plus
+homepage: https://github.com/Princewil/flutter_paystack_plus
 =======
 homepage: https://github.com/Princewil/flutter_paystack_plus
 >>>>>>> 68708ca22530a6f48380ddc533e4dfcccb0226e3
